@@ -1,0 +1,10 @@
+# Define the test list:
+file(GLOB TEST_LIST "*-*.ical")
+list(SORT TEST_LIST)
+
+# Loop for each test:
+foreach(VARIABLE ${TEST_LIST})
+  file(STRINGS "${VARIABLE}.test" TEST_OUTPUT )
+  add_test (NAME ${VARIABLE} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} COMMAND ical2crontab -i ${VARIABLE})
+  set_tests_properties(${VARIABLE} PROPERTIES ENVIRONMENT LD_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR} PASS_REGULAR_EXPRESSION "${TEST_OUTPUT}" )
+endforeach(VARIABLE)

@@ -16,6 +16,9 @@ set (ical2crontab_VERSION_MINOR 0)
 add_subdirectory (src)
 
 # Testing application:
-enable_testing()
-add_subdirectory (tests)
+if (ENABLE_TESTING)
+  enable_testing()
+  add_subdirectory (tests)
+endif (ENABLE_TESTING)
+
 

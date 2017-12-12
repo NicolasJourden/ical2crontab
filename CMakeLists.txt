@@ -3,10 +3,7 @@ project (ical2crontab)
 
 # Require library:
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
-#find_package(GTest REQUIRED)
-# Lib curl:
-find_package(CURL REQUIRED)
-include_directories(${CURL_INCLUDE_DIRS})
+
 # Lib ical:
 find_package(LIBICAL REQUIRED)
 include_directories(${LIBICAL_INCLUDE_DIRS})

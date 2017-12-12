@@ -1,1 +1,1 @@
-00	09	7	9	\*		# Sirenne - French call every 1st Wed. of the month -t 31536300.*
+00	09	[0-9]+	[0-9]+	\*		# Sirenne - French call every 1st Wed\. of the month -t 31536300

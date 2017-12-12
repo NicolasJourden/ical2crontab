@@ -1,4 +1,3 @@
-
 #include "ical.h"
 
 void dump_icaltimetype (const char * format, struct icaltimetype time)

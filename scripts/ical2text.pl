@@ -2,6 +2,7 @@
 
 use Data::Dumper;
 use Data::ICal;
+use Time::Piece;
 
 my $calendar = Data::ICal->new(filename => 'basic.ics');
 my $results = {};
@@ -18,18 +19,26 @@ foreach my $event (@{$calendar->{entries}})
 
 foreach my $ev (sort keys $results)
 {
-  print $ev;
+
+
+  my $from = Time::Piece->strptime($ev, "%Y%m%d");
+  my $to = Time::Piece->strptime($results->{$ev}->{end}, "%Y%m%d");
+  my $diff = $to - $from;
+
+  print $from->strftime("%Y-%m-%d");
   print "\t";
-  print $results->{$ev}->{end};
+  print $to->strftime("%Y-%m-%d");
+  print "\t";
+  print int($diff->days);
+  print "\t";
+  print $results->{$ev}->{location};
   print "\t";
   print $results->{$ev}->{summary};
-  print "\t\t\t";
-  print $results->{$ev}->{location};
-  if ($results->{$ev}->{description})
-  {
-    print "\t";
-    print $results->{$ev}->{description};
-  }
+#  if ($results->{$ev}->{description})
+#  {
+#    print "\t";
+#    print $results->{$ev}->{description};
+#  }
   print "\n";
 }
 

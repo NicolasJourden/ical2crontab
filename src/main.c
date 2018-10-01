@@ -5,11 +5,7 @@ void parseFile(const char * pFile)
   char * content;
   icalcomponent * calendar;
   long nb = 0;
-
-  // Read from file: 
   content = readFile(pFile, &nb);
-//  printf("%s", content);
-
   calendar = icalparser_parse_string(content); 
   parse_iCal(calendar);
   icalcomponent_free(calendar);
@@ -21,7 +17,6 @@ int main (int argc, char *argv[])
   int index;
   int c;
 
-  // Read option from the menu:
   while ((c = getopt (argc, argv, "dhi:")) != -1)
   {
     switch (c)
@@ -44,13 +39,12 @@ int main (int argc, char *argv[])
     }
   }
 
-  // Need help:
   if (help_flag == 1)
   {
     puts ("ical2crontab usage:");
     puts ("  -i for input file, if not provided input is from STDIN.");
     puts ("  -h for this help.");
-    puts ("\n\nNicolas JOURDEN - 2016");
+    puts ("\n\nNicolas JOURDEN - 2018");
   }
 
   // Parse the file:

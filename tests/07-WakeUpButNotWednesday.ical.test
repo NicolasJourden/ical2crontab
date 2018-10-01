@@ -1,2 +1,2 @@
-30	07	\*	\*	01,02,03,04,05	date "+%Y%m%d" \\| grep -q "29991009\\\|1" \&\& # WakeUp not on Wednesday -t 1500
+30	9	\*	\*	01,02,03,04,05	\[ "\$\(date "\+\\%Y\\%m\\%d"\)" = "29991009" \] \|\| WakeUp not on Wednesday 150
 

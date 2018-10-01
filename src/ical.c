@@ -46,6 +46,7 @@ void parse_iCal(icalcomponent* comp)
   icalproperty * exdate;
 
   icalrecur_iterator * data;
+  struct icaldurationtype offset;
   struct icaltimetype time_start;
   struct icaltimetype time_end;
   struct icaltimetype time_next;
@@ -54,6 +55,27 @@ void parse_iCal(icalcomponent* comp)
   struct icalrecurrencetype recur;
   int i = 0;
   double duration;
+
+  // Get offset:
+  time_t t = time(NULL);
+  struct tm lt = {0};
+  localtime_r(&t, &lt);
+  if (debug_flag)
+  {
+    printf("Offset to GMT is %lds.\n", lt.tm_gmtoff);
+  }
+  offset.days = 0;
+  offset.weeks = 0;
+  offset.hours = 0;
+  offset.minutes = 0;
+  offset.seconds = 0;
+  if (lt.tm_gmtoff < 0) {
+   offset.is_neg = 1;
+   offset.hours = 2;
+  } else {
+   offset.is_neg = 0;
+   offset.hours = 2;
+  }
 
   // Get time now:
   now = icaltime_today();
@@ -139,7 +161,8 @@ void parse_iCal(icalcomponent* comp)
 
 
     // Set time and hours:
-    printf ("%02d	%02d	", time_start.minute, time_start.hour);
+    struct icaltimetype local_time_start = icaltime_add(time_start, offset);
+    printf ("%d	%d	", local_time_start.minute, local_time_start.hour);
 
     // Set option depending of recurence:
     switch (recur.freq)
@@ -163,15 +186,13 @@ void parse_iCal(icalcomponent* comp)
         // The Xth of the month:
         if (recur.by_month_day[0] != 32639)
         {
-          printf ("%02d	*	*		", recur.by_month_day[0]);
+          printf ("%02d	*	*	", recur.by_month_day[0]);
         }
 
         // Day of the week:
         else
         {
-            printf ("%d	%d	*		", time_next.day, time_next.month);
-
-
+            printf ("%d	%d	*	", time_next.day, time_next.month);
         }
         break;
 
@@ -181,38 +202,51 @@ void parse_iCal(icalcomponent* comp)
       case ICAL_YEARLY_RECURRENCE:
       case ICAL_NO_RECURRENCE:
       default:
-        printf ("%02d	%02d	*		", 
-          time_start.day,
-          time_start.month
+        printf ("%02d	%02d	*	", 
+          local_time_start.day,
+          local_time_start.month
         );
     }
 
-    // Exclude some days? TODO exclude the one from the past.
+
+
+    // How many valid exclude dates:
     exdate = icalcomponent_get_first_property(c, ICAL_EXDATE_PROPERTY);
+    unsigned int num_ex = 0;
     if (exdate != NULL)
     {
-      /* $ date "+%Y%m%d" | grep -q "20160304\|20150607\|20160405" && echo "OK" */
-      printf ("%s", "date \"+%Y%m%d\" | grep -q \"");
-      for (;
-           exdate != NULL;
-           exdate = icalcomponent_get_next_property(c, ICAL_EXDATE_PROPERTY)
-      )
+      for (; exdate != NULL; exdate = icalcomponent_get_next_property(c, ICAL_EXDATE_PROPERTY) )
       {
         exdatetime = icalvalue_get_datetime(icalproperty_get_value(exdate));
-        printf ("%04d%02d%02d\\|", exdatetime.year, exdatetime.month, exdatetime.day);
+        if (icaltime_compare(exdatetime, now) >= 0)
+        {
+          num_ex++;
+        }
       }
-      printf ("1\" && ");
+    }
+    if (num_ex > 0)
+    {
+      exdate = icalcomponent_get_first_property(c, ICAL_EXDATE_PROPERTY);
+      for (; exdate != NULL; exdate = icalcomponent_get_next_property(c, ICAL_EXDATE_PROPERTY) )
+      {
+        exdatetime = icalvalue_get_datetime(icalproperty_get_value(exdate));
+        if (icaltime_compare(exdatetime, now) >= 0)
+        {
+          struct icaltimetype local_exdatetime = icaltime_add(exdatetime, offset);
+          printf ("%s", "[ \"$(date \"+\\\%Y\\\%m\\\%d\")\" = \"");
+          printf ("%04d%02d%02d", local_exdatetime.year, local_exdatetime.month, local_exdatetime.day);
+          printf ("%s", "\" ] || ");
+        }
+      }
     }
 
     // And the action:
-    printf ("# %s -t %.0f\n", 
-          summary,
-          duration
+    printf ("%s %.0f\n", 
+      summary,
+      duration
     );
 
-
     icalrecur_iterator_free (data);
-
   }
 }
 

@@ -69,12 +69,11 @@ void parse_iCal(icalcomponent* comp)
   offset.hours = 0;
   offset.minutes = 0;
   offset.seconds = 0;
+  offset.hours = lt.tm_gmtoff / 3600;
   if (lt.tm_gmtoff < 0) {
    offset.is_neg = 1;
-   offset.hours = 2;
   } else {
    offset.is_neg = 0;
-   offset.hours = 2;
   }
 
   // Get time now:

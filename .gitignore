@@ -36,3 +36,6 @@ tmp*
 
 # Debug files
 *.dSYM/
+
+# Ical files
+*.ics

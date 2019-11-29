@@ -17,10 +17,8 @@ foreach my $event (@{$calendar->{entries}})
   $results->{$event->{properties}->{dtstart}[0]->{value}}->{location} = $event->{properties}->{location}[0]->{value};
 }
 
-foreach my $ev (sort keys $results)
+foreach my $ev (sort keys %{$results})
 {
-
-
   my $from = Time::Piece->strptime($ev, "%Y%m%d");
   my $to = Time::Piece->strptime($results->{$ev}->{end}, "%Y%m%d");
   my $diff = $to - $from;
